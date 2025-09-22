@@ -12,7 +12,8 @@ from sqlalchemy import MetaData
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
-db = SQLAlchemy(metadata=metadata)
+db = SQLAlchemy()  # Instantiate SQLAlchemy outside of the app
+migrate = Migrate() # Instantiate Migrate
 
 # Instantiate app, set attributes
 app = Flask(__name__)
@@ -22,6 +23,10 @@ app.json.compact = False
 
 # Instantiate REST API
 api = Api(app)
+
+# Initialize extensions after the app is created
+db.init_app(app)
+migrate.init_app(app, db) # Initialize Migrate with both the app and the db0
 
 # Instantiate Migrate
 migrate = Migrate(app, db)
