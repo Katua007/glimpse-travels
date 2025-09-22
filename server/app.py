@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 
-# Standard library imports
-
-# Remote library imports
 from flask import request
 from flask_restful import Resource
 
 # Local imports
 from config import app, db, api
-# Add your model imports
+from models import User, Trip, Photo, TripFollowers
 
+# Define your resource classes here
+class Trips(Resource):
+    def get(self):
+        # Your logic to get all trips
+        return {'message': 'Trips resource'}, 200
 
-# Views go here!
-
-@app.route('/')
-def index():
-    return '<h1>Project Server</h1>'
-
+# Add your resources to the API
+api.add_resource(Trips, '/trips')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-
