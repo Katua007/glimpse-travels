@@ -1,40 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import Photo from './Photo';
+import { Link } from 'react-router-dom';
 
 function TripDetail() {
   const [trip, setTrip] = useState(null);
-  const { id } = useParams(); // Get the ID from the URL
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-  fetch(`/trips/${id}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Trip not found');
-      }
-      return response.json();
+    fetch(`/trips/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Trip not found');
+        }
+        return response.json();
+      })
+      .then(data => setTrip(data))
+      .catch(error => console.error('Error fetching trip:', error));
+  }, [id]);
+
+  const handleDelete = () => {
+    fetch(`/trips/${id}`, {
+      method: 'DELETE'
     })
-    .then(data => setTrip(data))
-    .catch(error => console.error('Error fetching trip:', error));
-}, [id]); // Dependency array ensures fetch runs only when 'id' changes
+      .then(res => {
+        if (res.ok) {
+          navigate('/trips');
+        } else {
+          throw new Error('Failed to delete trip');
+        }
+      })
+      .catch(error => console.error('Error deleting trip:', error));
+  };
 
   if (!trip) {
-    return <div>Loading...</div>; // Render a loading state
+    return <div>Loading...</div>;
   }
 
-  // Render the trip's details
   return (
-  <div className="trip-detail">
-    <h1>{trip.title}</h1>
-    <p>Destination: {trip.destination}</p>
-    <p>Dates: {trip.start_date} to {trip.end_date}</p>
+    <div className="trip-detail">
+      <h1>{trip.title}</h1>
+      <p>Destination: {trip.destination}</p>
+      <p>Dates: {trip.start_date} to {trip.end_date}</p>
 
-    <div className="photos-container">
-      {trip.photos.map(photo => (
-        <Photo key={photo.id} photo={photo} />
-      ))}
+      <div className="photos-container">
+        {trip.photos.map(photo => (
+          <Photo key={photo.id} photo={photo} />
+        ))}
+      </div>
+
+      <div className="actions">
+        {/* Link to the edit form */}
+        <Link to={`/trips/${id}/edit`}>
+          <button>Edit Trip</button>
+        </Link>
+        {/* Delete button */}
+        <button onClick={handleDelete}>Delete Trip</button>
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default TripDetail;
