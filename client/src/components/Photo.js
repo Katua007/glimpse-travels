@@ -1,10 +1,10 @@
 import React from 'react';
 
-function Photo() {
+function Photo({ photo }) {
   return (
-    <div>
-      <h1>Photo</h1>
-      {/* Your code will go here */}
+    <div className="photo">
+      <img src={photo.url} alt={photo.caption} />
+      {photo.caption && <p>{photo.caption}</p>}
     </div>
   );
 }

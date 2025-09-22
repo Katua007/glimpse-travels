@@ -1,10 +1,20 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-function TripCard() {
+function TripCard({ trip }) {
+  // Use a conditional check to ensure trip data exists
+  if (!trip) {
+    return null;
+  }
+
   return (
-    <div>
-      <h1>Trip Card</h1>
-      {/* Your code will go here */}
+    <div className="trip-card">
+      <Link to={`/trips/${trip.id}`}>
+        <img src={trip.photos.length > 0 ? trip.photos[0].url : 'placeholder.jpg'} alt={trip.title} />
+        <h2>{trip.title}</h2>
+        <p>Destination: {trip.destination}</p>
+        <p>Start Date: {trip.start_date}</p>
+      </Link>
     </div>
   );
 }
