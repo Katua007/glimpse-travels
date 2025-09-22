@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
+from flask_bcrypt import Bcrypt
 
 # Define metadata, instantiate db
 metadata = MetaData(naming_convention={
@@ -27,6 +28,7 @@ api = Api(app)
 # Initialize extensions after the app is created
 db.init_app(app)
 migrate.init_app(app, db) # Initialize Migrate with both the app and the db0
+bcrypt = Bcrypt(app)
 
 # Instantiate Migrate
 migrate = Migrate(app, db)

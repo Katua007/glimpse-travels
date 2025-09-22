@@ -1,10 +1,11 @@
+// client/src/components/TripDetail.js
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Photo from './Photo';
-import { Link } from 'react-router-dom';
 import TripFollowers from './TripFollowers';
 
-function TripDetail() {
+function TripDetail({ user }) {
   const [trip, setTrip] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ function TripDetail() {
         if (res.ok) {
           navigate('/trips');
         } else {
-          throw new Error('Failed to delete trip');
+          // You could also show an error message to the user here
+          console.error('Failed to delete trip. You might not have permission.');
         }
       })
       .catch(error => console.error('Error deleting trip:', error));
@@ -38,6 +40,9 @@ function TripDetail() {
   if (!trip) {
     return <div>Loading...</div>;
   }
+  
+  // Check if the current user is the owner of the trip
+  const isOwner = user && user.id === trip.user_id;
 
   return (
     <div className="trip-detail">
@@ -53,14 +58,15 @@ function TripDetail() {
       
       <TripFollowers tripId={trip.id} />
 
-      <div className="actions">
-        {/* Link to the edit form */}
-        <Link to={`/trips/${id}/edit`}>
-          <button>Edit Trip</button>
-        </Link>
-        {/* Delete button */}
-        <button onClick={handleDelete}>Delete Trip</button>
-      </div>
+      {/* Conditionally render the actions */}
+      {isOwner && (
+        <div className="actions">
+          <Link to={`/trips/${id}/edit`}>
+            <button>Edit Trip</button>
+          </Link>
+          <button onClick={handleDelete}>Delete Trip</button>
+        </div>
+      )}
     </div>
   );
 }

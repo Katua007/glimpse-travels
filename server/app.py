@@ -1,13 +1,45 @@
 #!/usr/bin/env python3
 
-from flask import request
+from flask import request, session
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
-
-# Local imports
 from config import app, db, api
 from models import User, Trip, Photo, TripFollowers
+
 # Define your resource classes here
+class Signup(Resource):
+    def post(self):
+        data = request.get_json()
+        try:
+            user = User(
+                username=data['username'],
+                password_hash=data['password']
+            )
+            db.session.add(user)
+            db.session.commit()
+            session['user_id'] = user.id
+            return user.to_dict(), 201
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(username=data['username']).first()
+        if user and user.authenticate(data['password']):
+            session['user_id'] = user.id
+            return user.to_dict(), 200
+        return {'error': 'Invalid credentials'}, 401
+
+class Logout(Resource):
+    def delete(self):
+        session.pop('user_id', None)
+        return {}, 204
+
+api.add_resource(Signup, '/signup', endpoint='signup')
+api.add_resource(Login, '/login', endpoint='login')
+api.add_resource(Logout, '/logout', endpoint='logout')
+
 class Trips(Resource):
     # GET: Get all trips
     def get(self):
@@ -34,18 +66,21 @@ class Trips(Resource):
 api.add_resource(Trips, '/trips')
 
 class TripById(Resource):
-    # GET: Get a single trip
     def get(self, id):
-        trip = db.session.get(Trip, id)
+        trip = Trip.query.filter_by(id=id).first()
         if not trip:
             return {'error': 'Trip not found'}, 404
         return trip.to_dict(), 200
 
-    # PATCH: Update a trip
     def patch(self, id):
-        trip = db.session.get(Trip, id)
+        if 'user_id' not in session:
+            return {'error': 'Unauthorized'}, 401
+
+        user_id = session['user_id']
+        trip = Trip.query.filter_by(id=id, user_id=user_id).first()
+        
         if not trip:
-            return {'error': 'Trip not found'}, 404
+            return {'error': 'Forbidden or Trip not found'}, 403
 
         data = request.get_json()
         try:
@@ -54,15 +89,19 @@ class TripById(Resource):
             db.session.add(trip)
             db.session.commit()
             return trip.to_dict(), 200
-        except (ValueError, IntegrityError) as e:
+        except Exception as e:
             return {'error': str(e)}, 400
 
-    # DELETE: Delete a trip
     def delete(self, id):
-        trip = db.session.get(Trip, id)
-        if not trip:
-            return {'error': 'Trip not found'}, 404
+        if 'user_id' not in session:
+            return {'error': 'Unauthorized'}, 401
+
+        user_id = session['user_id']
+        trip = Trip.query.filter_by(id=id, user_id=user_id).first()
         
+        if not trip:
+            return {'error': 'Forbidden or Trip not found'}, 403
+
         db.session.delete(trip)
         db.session.commit()
         return {}, 204

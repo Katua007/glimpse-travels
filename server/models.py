@@ -1,5 +1,6 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
+from config import db, bcrypt
 
 # Local imports
 from config import db
@@ -10,12 +11,29 @@ class User(db.Model, SerializerMixin):
     # Define columns with db.Column()
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    # The actual column to store the hashed password
+    _password_hash = db.Column(db.String)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # Define relationships with db.relationship()
     trips = db.relationship('Trip', backref='user', lazy=True)
     followed_trips = db.relationship('TripFollowers', backref='user', lazy=True)
-    # Exclude trips from user serialization to prevent recursion
-    serialize_rules = ('-trips.user',)
+    # Prevent password_hash from being serialized
+    serialize_rules = ('-trips.user', '-followed_trips.user')
+
+    @hybrid_property
+    def password_hash(self):
+        raise AttributeError('Password hashes may not be viewed.')
+
+    @password_hash.setter
+    def password_hash(self, password):
+        # Hash the password and store it
+        hashed_password = bcrypt.generate_password_hash(password.encode('utf-8'))
+        self._password_hash = hashed_password.decode('utf-8')
+
+    def authenticate(self, password):
+        # Check if the provided password matches the stored hash
+        return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+
 
 # Trip Model
 class Trip(db.Model, SerializerMixin):
