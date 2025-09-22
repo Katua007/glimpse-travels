@@ -18,12 +18,16 @@ const TripSchema = Yup.object().shape({
     .min(Yup.ref('start_date'), 'End date cannot be before start date'),
 });
 
-function TripForm() {
+function TripForm({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
 
-  useEffect(() => {
+   useEffect(() => {
+    // Redirect if user is not logged in and is trying to create a new trip
+    if (!user && !id) {
+      navigate('/login');
+    }
     if (id) {
       fetch(`/trips/${id}`)
         .then(res => res.json())
@@ -37,7 +41,7 @@ function TripForm() {
         user_id: 1 // NOTE: Replace with dynamic user ID from state or context
       });
     }
-  }, [id]);
+  }, [user, id]);
 
   if (!initialValues) {
     return <div>Loading form...</div>;
@@ -48,13 +52,18 @@ function TripForm() {
       initialValues={initialValues}
       validationSchema={TripSchema}
       onSubmit={(values, { setSubmitting }) => {
+        // Add the user_id to the values before submitting
+    const tripData = {
+      ...values,
+      user_id: user.id
+    };
         const url = id ? `/trips/${id}` : '/trips';
         const method = id ? 'PATCH' : 'POST';
 
         fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify(tripData),
         })
           .then(res => {
             if (!res.ok) {

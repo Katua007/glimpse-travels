@@ -37,15 +37,17 @@ function App() {
   return (
     <div className="App">
       <NavBar user={user} onLogout={onLogout} />
+      <main>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/trips" element={<TripList />} />
         <Route path="/trips/:id" element={<TripDetail />} />
-        <Route path="/trips/new" element={<TripForm />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/trips/new" element={<TripForm user={user} />} />
+        <Route path="/profile" element={<UserProfile user={user} />} />
         <Route path="/login" element={<Login onLogin={onLogin} />} />
         <Route path="/signup" element={<Signup onLogin={onLogin} />} />
       </Routes>
+      </main>
     </div>
   );
 }
