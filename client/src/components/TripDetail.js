@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Photo from './Photo';
 import { Link } from 'react-router-dom';
+import TripFollowers from './TripFollowers';
 
 function TripDetail() {
   const [trip, setTrip] = useState(null);
@@ -49,6 +50,8 @@ function TripDetail() {
           <Photo key={photo.id} photo={photo} />
         ))}
       </div>
+      
+      <TripFollowers tripId={trip.id} />
 
       <div className="actions">
         {/* Link to the edit form */}
