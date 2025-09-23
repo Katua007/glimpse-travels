@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './TripCard.css';
 
 function TripCard({ trip }) {
   // Use a conditional check to ensure trip data exists

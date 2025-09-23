@@ -1,0 +1,7 @@
+.trip-list-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap onto the next line */
+  justify-content: center; /* Centers the cards horizontally */
+  gap: 20px; /* Adds space between the cards */
+  padding: 20px;
+}

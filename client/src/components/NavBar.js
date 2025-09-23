@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 function NavBar({ user, onLogout }) {
   return (
     <header>
-      <nav>
+      <nav className="navbar">
         <NavLink to="/">Home</NavLink>
         <NavLink to="/trips">All Trips</NavLink>
 
@@ -30,4 +30,4 @@ function NavBar({ user, onLogout }) {
   );
 }
 
-export default NavBar;
+export default NavBar
