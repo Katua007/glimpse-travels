@@ -130,6 +130,35 @@ class Photos(Resource):
 
 api.add_resource(Photos, '/photos')
 
+class TripFollowersList(Resource):
+    def post(self):
+        data = request.get_json()
+        try:
+            new_follower = TripFollowers(
+                user_id=data['user_id'],
+                trip_id=data['trip_id'],
+                reason_for_following=data.get('reason_for_following')
+            )
+            db.session.add(new_follower)
+            db.session.commit()
+            return new_follower.to_dict(), 201
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+class TripFollowersResource(Resource):
+    def delete(self, user_id, trip_id):
+        # Find the specific follower record
+        follower = TripFollowers.query.filter_by(user_id=user_id, trip_id=trip_id).first()
+        if follower:
+            db.session.delete(follower)
+            db.session.commit()
+            return {}, 204
+        return {'error': 'Follower not found'}, 404
+
+# Add the new routes
+api.add_resource(TripFollowersList, '/trip-followers')
+api.add_resource(TripFollowersResource, '/trip-followers/<int:user_id>/<int:trip_id>')
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
