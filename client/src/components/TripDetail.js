@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Photo from './Photo';
 import TripFollowers from './TripFollowers';
+import PhotoForm from './PhotoForm';
 
 function TripDetail({ user }) {
   const [trip, setTrip] = useState(null);
@@ -21,6 +22,14 @@ function TripDetail({ user }) {
       .then(data => setTrip(data))
       .catch(error => console.error('Error fetching trip:', error));
   }, [id]);
+
+  // Callback function to add the new photo to state
+  const handleAddPhoto = (newPhoto) => {
+    setTrip(prevTrip => ({
+      ...prevTrip,
+      photos: [...prevTrip.photos, newPhoto]
+    }));
+  };
 
   const handleDelete = () => {
     fetch(`/trips/${id}`, {
@@ -60,7 +69,8 @@ function TripDetail({ user }) {
 
       {/* Conditionally render the actions */}
       {isOwner && (
-        <div className="actions">
+        <div className="add-photo-section">
+          <PhotoForm tripId={trip.id} onNewPhoto={handleAddPhoto} />
           <Link to={`/trips/${id}/edit`}>
             <button>Edit Trip</button>
           </Link>
