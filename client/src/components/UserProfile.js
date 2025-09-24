@@ -1,26 +1,21 @@
 // client/src/components/UserProfile.js
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-function UserProfile() {
-  const [user, setUser] = useState(null);
-  const userId = 1; // NOTE: Replace with dynamic user ID from state or context
+function UserProfile({ user }) {
+  const navigate = useNavigate();
 
+  // If the user is not logged in, redirect them to the login page
   useEffect(() => {
-    fetch(`/users/${userId}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('User not found');
-        }
-        return res.json();
-      })
-      .then(data => setUser(data))
-      .catch(error => console.error('Error fetching user:', error));
-  }, [userId]);
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
+  // Render a message if user data is still being fetched or not available
   if (!user) {
-    return <div>Loading user profile...</div>;
+    return <div>Redirecting to login...</div>;
   }
 
   return (
@@ -30,7 +25,7 @@ function UserProfile() {
       
       <h2>My Trips</h2>
       <div className="my-trips-list">
-        {user.trips.length > 0 ? (
+        {user.trips && user.trips.length > 0 ? (
           user.trips.map(trip => (
             <div key={trip.id} className="user-trip-card">
               <h3>{trip.title}</h3>
