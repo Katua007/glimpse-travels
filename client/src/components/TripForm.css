@@ -1,0 +1,22 @@
+/* client/src/components/TripForm.css */
+
+/* Center the form on the page */
+.form-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Set a minimum height to use for centering */
+}
+
+/* Stack form fields vertically */
+.form-container {
+  display: flex;
+  flex-direction: column; /* Stacks children vertically */
+  gap: 15px; /* Adds space between each form field */
+  padding: 40px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}

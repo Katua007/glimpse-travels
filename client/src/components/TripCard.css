@@ -1,0 +1,25 @@
+/* client/src/components/TripCard.css */
+
+.trip-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 15px;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.trip-card:hover {
+  transform: translateY(-5px);
+}
+
+.trip-card h3 {
+  font-size: 1.5rem;
+  margin-top: 0;
+}
+
+.trip-card p {
+  color: #666;
+  font-size: 0.9rem;
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TripCard from './TripCard';
+import './TripList.css';
 
 function TripList() {
   const [trips, setTrips] = useState([]);
@@ -22,8 +23,7 @@ function TripList() {
 // Render the Data
 
 return (
-  <div className="trip-list">
-    <h1>All Trips</h1>
+  <div className="trip-list-container">
     {trips.map(trip => (
       <TripCard key={trip.id} trip={trip} />
     ))}

@@ -82,7 +82,7 @@ function TripForm({ user }) {
       }}
     >
       {({ errors, touched, isSubmitting }) => (
-        <Form>
+        <Form className="form-container">
           <h2>{id ? 'Edit Trip' : 'Create a New Trip'}</h2>
           <div>
             <label htmlFor="title">Title</label>

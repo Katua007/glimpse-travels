@@ -1,0 +1,9 @@
+/* client/src/components/NavBar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Pushes items to the start and end of the container */
+  align-items: center; /* Vertically aligns items in the middle */
+  padding: 1rem 2rem;
+  background-color: #1a2a44;
+  color: white;
+}
