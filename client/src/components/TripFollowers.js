@@ -6,7 +6,8 @@ function TripFollowers({ tripId }) {
   const [followers, setFollowers] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [reason, setReason] = useState('');
-  const userId = 1; // NOTE: Replace with dynamic user ID
+  // Use the user's ID from the Prop
+  const userId = user?.id;
 
   useEffect(() => {
     // Fetch followers for this specific trip
@@ -50,22 +51,24 @@ function TripFollowers({ tripId }) {
     });
   };
 
-  return (
+ return (
     <div>
       <h3>Trip Followers ({followers.length})</h3>
-      {isFollowing ? (
-        <button onClick={handleUnfollow}>Unfollow</button>
-      ) : (
-        <form onSubmit={handleFollow}>
-          <input
-            type="text"
-            placeholder="Reason for following"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            required
-          />
-          <button type="submit">Follow</button>
-        </form>
+      {user && ( // Conditionally render follow/unfollow buttons if user is logged in
+        isFollowing ? (
+          <button onClick={handleUnfollow}>Unfollow</button>
+        ) : (
+          <form onSubmit={handleFollow}>
+            <input
+              type="text"
+              placeholder="Reason for following"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+            />
+            <button type="submit">Follow</button>
+          </form>
+        )
       )}
       <ul>
         {followers.map(follower => (
