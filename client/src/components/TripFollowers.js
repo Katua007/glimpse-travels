@@ -2,21 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 
-function TripFollowers({ tripId }) {
+function TripFollowers({ tripId, user }) {
   const [followers, setFollowers] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [reason, setReason] = useState('');
-  // Use the user's ID from the Prop
   const userId = user?.id;
 
   useEffect(() => {
-    // Fetch followers for this specific trip
-    fetch(`/trips/${tripId}/followers`)
+    // For now, we'll fetch all trip followers and filter by trip_id
+    fetch('/trip-followers')
       .then(res => res.json())
       .then(data => {
-        setFollowers(data);
-        // Check if the current user is already following
-        const userFollows = data.some(follower => follower.user_id === userId);
+        const tripFollowers = data.filter(follower => follower.trip_id === parseInt(tripId));
+        setFollowers(tripFollowers);
+        const userFollows = tripFollowers.some(follower => follower.user_id === userId);
         setIsFollowing(userFollows);
       })
       .catch(error => console.error('Error fetching followers:', error));
@@ -73,7 +72,7 @@ function TripFollowers({ tripId }) {
       <ul>
         {followers.map(follower => (
           <li key={follower.id}>
-            {follower.user.username} - {follower.reason_for_following}
+            User {follower.user_id} - {follower.reason_for_following}
           </li>
         ))}
       </ul>

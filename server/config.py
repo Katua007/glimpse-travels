@@ -20,6 +20,7 @@ migrate = Migrate() # Instantiate Migrate
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.json.compact = False
 
 # Instantiate REST API
@@ -27,11 +28,8 @@ api = Api(app)
 
 # Initialize extensions after the app is created
 db.init_app(app)
-migrate.init_app(app, db) # Initialize Migrate with both the app and the db0
+migrate.init_app(app, db)
 bcrypt = Bcrypt(app)
-
-# Instantiate Migrate
-migrate = Migrate(app, db)
 
 # Instantiate CORS
 CORS(app)

@@ -1,30 +1,32 @@
-// In client/src/components/NavBar.js
-
 import React from "react";
 import { NavLink } from "react-router-dom";
+import "./NavBar.css";
 
-// Receive user and onLogout as props
 function NavBar({ user, onLogout }) {
   return (
     <header>
       <nav className="navbar">
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/trips">All Trips</NavLink>
+        <div className="navbar-brand">
+          <NavLink to="/" className="brand-link">✈️ Glimpse Travels</NavLink>
+        </div>
+        
+        <div className="navbar-links">
+          <NavLink to="/" exact activeClassName="active">🏠 Home</NavLink>
+          <NavLink to="/trips" activeClassName="active">🗺️ Explore Trips</NavLink>
 
-        {user ? (
-          // Authenticated User links
-          <>
-            <NavLink to="/trips/new">Create Trip</NavLink>
-            <NavLink to="/profile">Profile</NavLink>
-            <button onClick={onLogout}>Logout</button>
-          </>
-        ) : (
-          // Guest User links
-          <>
-            <NavLink to="/login">Login</NavLink>
-            <NavLink to="/signup">Signup</NavLink>
-          </>
-        )}
+          {user ? (
+            <div className="user-menu">
+              <NavLink to="/trips/new" activeClassName="active">➕ Create Trip</NavLink>
+              <NavLink to="/profile" activeClassName="active">👤 My Profile</NavLink>
+              <button onClick={onLogout} className="logout-btn">🚪 Logout</button>
+            </div>
+          ) : (
+            <div className="auth-links">
+              <NavLink to="/login" activeClassName="active">🔑 Login</NavLink>
+              <NavLink to="/signup" activeClassName="active">📝 Join Us</NavLink>
+            </div>
+          )}
+        </div>
       </nav>
     </header>
   );

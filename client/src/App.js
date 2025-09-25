@@ -1,7 +1,7 @@
 // client/src/App.js
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './components/Home';
 import TripList from './components/TripList';
@@ -38,15 +38,16 @@ function App() {
     <div className="App">
       <NavBar user={user} onLogout={onLogout} />
       <main>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/trips" element={<TripList />} />
-        <Route path="/trips/:id" element={<TripDetail />} />
-        <Route path="/trips/new" element={<TripForm user={user} />} />
-        <Route path="/profile" element={<UserProfile user={user} />} />
-        <Route path="/login" element={<Login onLogin={onLogin} />} />
-        <Route path="/signup" element={<Signup onLogin={onLogin} />} />
-      </Routes>
+      <Switch>
+        <Route exact path="/" render={(props) => <Home {...props} user={user} />} />
+        <Route exact path="/trips" component={TripList} />
+        <Route exact path="/trips/new" render={(props) => <TripForm {...props} user={user} />} />
+        <Route exact path="/trips/:id/edit" render={(props) => <TripForm {...props} user={user} />} />
+        <Route exact path="/trips/:id" render={(props) => <TripDetail {...props} user={user} />} />
+        <Route exact path="/profile" render={(props) => <UserProfile {...props} user={user} />} />
+        <Route exact path="/login" render={(props) => <Login {...props} onLogin={onLogin} />} />
+        <Route exact path="/signup" render={(props) => <Signup {...props} onLogin={onLogin} />} />
+      </Switch>
       </main>
     </div>
   );

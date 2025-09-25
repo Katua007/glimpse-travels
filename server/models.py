@@ -1,24 +1,20 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from config import db, bcrypt
-
-# Local imports
-from config import db
 from sqlalchemy_serializer import SerializerMixin
 # Models go here!
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
-    # Define columns with db.Column()
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    # The actual column to store the hashed password
     _password_hash = db.Column(db.String)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    # Define relationships with db.relationship()
+    bio = db.Column(db.String(500), default='Adventure seeker & travel enthusiast')
+    rating = db.Column(db.Float, default=4.5)
+    wishlist = db.Column(db.Text)  # JSON string of wished destinations
     trips = db.relationship('Trip', backref='user', lazy=True)
     followed_trips = db.relationship('TripFollowers', backref='user', lazy=True)
-    # Prevent password_hash from being serialized
-    serialize_rules = ('-trips.user', '-followed_trips.user')
+    serialize_rules = ('-trips.user', '-followed_trips.user', '-_password_hash')
 
     @hybrid_property
     def password_hash(self):
