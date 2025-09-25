@@ -29,7 +29,7 @@ Glimpse Travels is a full-stack web application designed to help users document 
 
 * Pipenv: A dependency management tool for Python.
 
-* * Frontend
+/ Frontend
 * React: A JavaScript library for building user interfaces.
 
 * React Router: For client-side routing.
@@ -45,7 +45,7 @@ Glimpse Travels is a full-stack web application designed to help users document 
 # 🚀 Installation
 Follow these steps to set up and run the application on your local machine.
 
-* * Prerequisites
+/ Prerequisites
 Make sure you have the following installed:
 
 * Python 3
@@ -54,11 +54,11 @@ Make sure you have the following installed:
 
 * Pipenv (pip install pipenv)
 
-* * Backend Setup
+/ Backend Setup
 1. Navigate to the server/ directory in your terminal:
 
-Bash
-cd server
+        Bash
+       cd server
 
 2. Install the required Python packages:
 
