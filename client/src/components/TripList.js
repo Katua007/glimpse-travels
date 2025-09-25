@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 import TripCard from './TripCard';
 import './TripList.css';
 
@@ -7,7 +8,7 @@ function TripList() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    fetch('/trips')
+    fetch(`${API_BASE_URL}/trips`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

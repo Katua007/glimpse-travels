@@ -1,21 +1,10 @@
 {
-  "version": 2,
-  "buildCommand": "cd client && npm run build",
+  "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/build",
-  "builds": [
+  "rewrites": [
     {
-      "src": "server/app.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(check_session|signup|login|logout|trips|photos|users|trip-followers).*",
-      "dest": "server/app.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
