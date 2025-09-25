@@ -16,7 +16,7 @@ Glimpse Travels is a full-stack web application designed to help users document 
 * Authorization: Ensures users can only edit or delete their own trips and add photos to their own trips.
 
 # 💻 Technologies Used
-* * Backend
+ * Backend
 * Flask: A lightweight Python web framework.
 
 * Flask-SQLAlchemy: An ORM for interacting with the database.
