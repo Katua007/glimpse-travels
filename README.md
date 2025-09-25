@@ -63,37 +63,44 @@ Make sure you have the following installed:
 
 3. Install the required Python packages:
 
-Bash
-pipenv install
+       Bash
+
+       pipenv install
 
 3. Run the database migrations and seed the database with sample data:
 
-Bash
-#Activates the virtual environment and runs the shell script
-pipenv run seed
+       Bash
+   
+       #Activates the virtual environment and runs the shell script
+   
+       pipenv run seed
 
-4. Start the Flask server:
+5. Start the Flask server:
 
-Bash
-pipenv run flask run -p 5555
+       Bash
+   
+       pipenv run flask run -p 5555
 
 The backend API should now be running at http://localhost:5555.
 
-* * Frontend Setup
+/ Frontend Setup
 1. Open a new terminal window and navigate to the client/ directory:
 
-Bash
-cd client
+       Bash
+   
+       cd client
 
 2. Install the required Node.js packages:
 
-Bash
-npm install
+       Bash
+
+       npm install
 
 3. Start the React development server:
 
-Bash
-npm start
+       Bash
+   
+       npm start
 
 The frontend application will now be available in your browser at http://localhost:3000.
 
