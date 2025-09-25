@@ -58,9 +58,10 @@ Make sure you have the following installed:
 1. Navigate to the server/ directory in your terminal:
 
         Bash
+   
        cd server
 
-2. Install the required Python packages:
+3. Install the required Python packages:
 
 Bash
 pipenv install
