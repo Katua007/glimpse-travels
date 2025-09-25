@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from flask import request, session
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -303,6 +304,9 @@ api.add_resource(UserById, '/users/<int:id>')
 api.add_resource(TripFollowersList, '/trip-followers')
 api.add_resource(TripFollowersResource, '/trip-followers/<int:user_id>/<int:trip_id>')
 
+
+# For Vercel deployment
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

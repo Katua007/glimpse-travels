@@ -160,11 +160,43 @@ The application comes pre-loaded with:
 
 ## 🚀 Deployment
 
-The application is ready for deployment with:
-- Production-optimized React build
-- Flask production configuration
-- Environment variable support
-- Static file serving
+### Quick Deploy Options
+
+#### Option 1: Heroku (Full-Stack)
+```bash
+# Install Heroku CLI, then:
+heroku create your-app-name
+heroku addons:create heroku-postgresql:mini
+heroku config:set SECRET_KEY="your-secret-key"
+git push heroku main
+heroku run python server/seed.py
+```
+
+#### Option 2: Netlify + Railway
+- **Frontend**: Deploy `client/build` to Netlify
+- **Backend**: Deploy `server/` to Railway
+- Set environment variables in each platform
+
+### Environment Variables
+- `SECRET_KEY`: Flask secret key
+- `DATABASE_URL`: PostgreSQL connection string
+
+### Build Commands
+- **Backend**: `pip install -r requirements.txt`
+- **Frontend**: `npm install && npm run build`
+
+See `deploy.md` for detailed instructions.
+
+## 📁 Project Structure
+```
+glimpse-travels/
+├── client/          # React frontend
+├── server/          # Flask backend
+├── requirements.txt # Python dependencies
+├── Procfile        # Heroku configuration
+├── netlify.toml    # Netlify configuration
+└── deploy.md       # Deployment guide
+```
 
 ---
 
