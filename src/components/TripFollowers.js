@@ -1,6 +1,7 @@
 // client/src/components/TripFollowers.js
 
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 
 function TripFollowers({ tripId, user }) {
   const [followers, setFollowers] = useState([]);
@@ -10,7 +11,7 @@ function TripFollowers({ tripId, user }) {
 
   useEffect(() => {
     // For now, we'll fetch all trip followers and filter by trip_id
-    fetch('/trip-followers')
+    fetch(`${API_BASE_URL}/trip-followers`)
       .then(res => res.json())
       .then(data => {
         const tripFollowers = data.filter(follower => follower.trip_id === parseInt(tripId));
@@ -23,7 +24,7 @@ function TripFollowers({ tripId, user }) {
 
   const handleFollow = (e) => {
     e.preventDefault();
-    fetch('/trip-followers', {
+    fetch(`${API_BASE_URL}/trip-followers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -42,7 +43,7 @@ function TripFollowers({ tripId, user }) {
 
   const handleUnfollow = () => {
     // NOTE: You'll need a backend DELETE route for this. Example: /trip-followers/user_id/trip_id
-    fetch(`/trip-followers/${userId}/${tripId}`, {
+    fetch(`${API_BASE_URL}/trip-followers/${userId}/${tripId}`, {
       method: 'DELETE'
     }).then(() => {
       setFollowers(followers.filter(f => f.user_id !== userId));

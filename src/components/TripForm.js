@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { API_BASE_URL } from '../config';
 import './TripForm.css';
 
 const TripSchema = Yup.object().shape({
@@ -35,7 +36,7 @@ function TripForm({ user }) {
     
     if (id) {
       setIsEditing(true);
-      fetch(`/trips/${id}`)
+      fetch(`${API_BASE_URL}/trips/${id}`)
         .then(res => res.json())
         .then(data => {
           setInitialValues({
@@ -92,7 +93,7 @@ function TripForm({ user }) {
             const url = id ? `/trips/${id}` : '/trips';
             const method = id ? 'PATCH' : 'POST';
 
-            fetch(url, {
+            fetch(`${API_BASE_URL}${url}`, {
               method: method,
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(values),

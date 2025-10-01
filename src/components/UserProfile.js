@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import './UserProfile.css';
 
 function UserProfile({ user }) {
@@ -16,7 +17,7 @@ function UserProfile({ user }) {
     }
     
     // Fetch user's trips
-    fetch('/trips')
+    fetch(`${API_BASE_URL}/trips`)
       .then(res => res.json())
       .then(trips => {
         const myTrips = trips.filter(trip => trip.user_id === user.id);

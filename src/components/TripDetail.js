@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import Photo from './Photo';
 import TripFollowers from './TripFollowers';
 import PhotoForm from './PhotoForm';
@@ -14,7 +15,7 @@ function TripDetail({ user }) {
   const history = useHistory();
 
   useEffect(() => {
-    fetch(`/trips/${id}`)
+    fetch(`${API_BASE_URL}/trips/${id}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Trip not found');
@@ -24,7 +25,7 @@ function TripDetail({ user }) {
       .then(data => {
         setTrip(data);
         // Fetch trip owner details
-        return fetch(`/users/${data.user_id}`);
+        return fetch(`${API_BASE_URL}/users/${data.user_id}`);
       })
       .then(res => res.ok ? res.json() : null)
       .then(owner => setTripOwner(owner))
@@ -40,7 +41,7 @@ function TripDetail({ user }) {
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this trip?')) {
-      fetch(`/trips/${id}`, {
+      fetch(`${API_BASE_URL}/trips/${id}`, {
         method: 'DELETE'
       })
         .then(res => {

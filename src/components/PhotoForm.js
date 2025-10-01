@@ -1,6 +1,7 @@
 // client/src/components/PhotoForm.js
 
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 function PhotoForm({ tripId, onNewPhoto }) {
   const [url, setUrl] = useState('');
@@ -8,7 +9,7 @@ function PhotoForm({ tripId, onNewPhoto }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/photos', {
+    fetch(`${API_BASE_URL}/photos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

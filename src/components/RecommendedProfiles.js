@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import './RecommendedProfiles.css';
 
 function RecommendedProfiles({ currentUser }) {
@@ -11,7 +12,7 @@ function RecommendedProfiles({ currentUser }) {
     const fetchData = async () => {
       try {
         // Fetch all users
-        const usersResponse = await fetch('/users');
+        const usersResponse = await fetch(`${API_BASE_URL}/users`);
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
           const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
@@ -19,7 +20,7 @@ function RecommendedProfiles({ currentUser }) {
         }
 
         // Fetch all trips to group by user
-        const tripsResponse = await fetch('/trips');
+        const tripsResponse = await fetch(`${API_BASE_URL}/trips`);
         if (tripsResponse.ok) {
           const tripsData = await tripsResponse.json();
           const tripsByUser = {};

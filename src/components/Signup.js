@@ -4,6 +4,7 @@ import React from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import './Signup.css';
 
 const SignupSchema = Yup.object().shape({
@@ -34,7 +35,7 @@ function Signup({ onLogin }) {
           initialValues={{ username: '', email: '', password: '' }}
           validationSchema={SignupSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            fetch('/signup', {
+            fetch(`${API_BASE_URL}/signup`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(values),
