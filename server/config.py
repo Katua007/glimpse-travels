@@ -28,6 +28,9 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.json.compact = False
 
 # Instantiate REST API
@@ -38,5 +41,5 @@ db.init_app(app)
 migrate.init_app(app, db)
 bcrypt = Bcrypt(app)
 
-# Instantiate CORS - Allow all Vercel deployments
-CORS(app, origins=['https://*.vercel.app', 'http://localhost:3000'], supports_credentials=True)
+# Instantiate CORS - Allow all origins for deployment
+CORS(app, origins='*', supports_credentials=False)
