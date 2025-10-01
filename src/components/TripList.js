@@ -15,8 +15,17 @@ function TripList() {
         }
         return response.json();
       })
-      .then(data => setTrips(data))
-      .catch(error => console.error('Error fetching trips:', error));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setTrips(data);
+        } else {
+          setTrips([]);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching trips:', error);
+        setTrips([]);
+      });
   }, []);
 
   const continents = {

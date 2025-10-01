@@ -15,25 +15,31 @@ function RecommendedProfiles({ currentUser }) {
         const usersResponse = await fetch(`${API_BASE_URL}/users`);
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
-          const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
-          setUsers(otherUsers);
+          if (Array.isArray(usersData)) {
+            const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
+            setUsers(otherUsers);
+          }
         }
 
         // Fetch all trips to group by user
         const tripsResponse = await fetch(`${API_BASE_URL}/trips`);
         if (tripsResponse.ok) {
           const tripsData = await tripsResponse.json();
-          const tripsByUser = {};
-          tripsData.forEach(trip => {
-            if (!tripsByUser[trip.user_id]) {
-              tripsByUser[trip.user_id] = [];
-            }
-            tripsByUser[trip.user_id].push(trip);
-          });
-          setUserTrips(tripsByUser);
+          if (Array.isArray(tripsData)) {
+            const tripsByUser = {};
+            tripsData.forEach(trip => {
+              if (!tripsByUser[trip.user_id]) {
+                tripsByUser[trip.user_id] = [];
+              }
+              tripsByUser[trip.user_id].push(trip);
+            });
+            setUserTrips(tripsByUser);
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setUsers([]);
+        setUserTrips({});
       } finally {
         setLoading(false);
       }
