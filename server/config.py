@@ -38,5 +38,5 @@ db.init_app(app)
 migrate.init_app(app, db)
 bcrypt = Bcrypt(app)
 
-# Instantiate CORS
-CORS(app, origins=['https://glimpse-travels.vercel.app', 'http://localhost:3000'], supports_credentials=True)
+# Instantiate CORS - Allow all Vercel deployments
+CORS(app, origins=['https://*.vercel.app', 'http://localhost:3000'], supports_credentials=True)
