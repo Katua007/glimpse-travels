@@ -97,4 +97,6 @@ The project includes:
 2. Add your custom domain
 3. Configure DNS records as shown
 
-Your app will be live at: `https://glimpse-travels.vercel.app`
+
+Your app will be live at: `https://glimpsetravels.vercel.app`
+>>>>>>> c340389 (Restructured for Vercel deployment)
