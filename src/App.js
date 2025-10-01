@@ -17,7 +17,7 @@ function App() {
 
   useEffect(() => {
     // Auto-login to check for a user in the session
-    fetch(`${API_BASE_URL}/check_session`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/check_session`)
       .then(res => {
         if (res.ok) {
           res.json().then(user => setUser(user));
@@ -30,7 +30,7 @@ function App() {
   }
 
   function onLogout() {
-    fetch(`${API_BASE_URL}/logout`, { method: 'DELETE', credentials: 'include' }).then(() => {
+    fetch(`${API_BASE_URL}/logout`, { method: 'DELETE' }).then(() => {
       setUser(null);
     });
   }
