@@ -39,4 +39,4 @@ migrate.init_app(app, db)
 bcrypt = Bcrypt(app)
 
 # Instantiate CORS
-CORS(app)
+CORS(app, origins=['https://glimpse-travels.vercel.app', 'http://localhost:3000'], supports_credentials=True)

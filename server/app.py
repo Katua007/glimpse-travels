@@ -308,5 +308,8 @@ api.add_resource(TripFollowersResource, '/trip-followers/<int:user_id>/<int:trip
 # For Vercel deployment
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
 
+# WSGI app for Vercel
+app_wsgi = app
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
