@@ -134,7 +134,7 @@ Personal space to manage your travel documentation and statistics.
 
 ## 🔗 Links
 
-- **Live Demo**: [https://glimpse-travels-git-main-katua007s-projects.vercel.app/](https://glimpse-travels-git-main-katua007s-projects.vercel.app/)
+- **Live Demo**: [https://glimpse-travels.vercel.app/](https://glimpse-travels.vercel.app/)
 - **API Documentation**: Available in `/server/api.py`
 - **Design System**: Custom CSS with modern travel-themed styling
 
