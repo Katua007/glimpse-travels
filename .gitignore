@@ -1,20 +1,28 @@
 # Dependencies
 node_modules/
-__pycache__/
-*.pyc
 
 # Environment variables
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Database
 *.db
 instance/
 
+# Python
+__pycache__/
+*.pyc
+
 # Build outputs
-client/build/
+build/
 dist/
+
+# Claude Code
+.claude/
+
+# Vercel
+.vercel/
 
 # IDE
 .vscode/
