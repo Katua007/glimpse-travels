@@ -8,6 +8,8 @@ A travel journal app. Users sign up, log trips with dates and destinations, atta
 
 **Backend** — Flask, Flask-RESTful, Flask-SQLAlchemy, Flask-Migrate, Flask-Bcrypt, flask-jwt-extended. SQLite locally, Postgres in production.
 
+**Tests** — React Testing Library (`src/components/__tests__/`) and pytest (`server/tests/`).
+
 ## Local setup
 
 ### Backend
@@ -65,8 +67,8 @@ Base URL: `REACT_APP_API_URL` (e.g. `http://localhost:5555`). Authenticated rout
 | Method | Route | Auth | Description |
 |---|---|---|---|
 | GET | `/health` | — | Liveness check |
-| POST | `/signup` | — | Create an account, returns a JWT |
-| POST | `/login` | — | Authenticate, returns a JWT |
+| POST | `/signup` | — | Create an account, returns `{ token, user }` |
+| POST | `/login` | — | Authenticate, returns `{ token, user }` |
 | DELETE | `/logout` | — | Stateless no-op for client symmetry |
 | GET | `/check_session` | required | Return the current user from the token |
 | GET | `/trips` | — | List all trips |
@@ -74,7 +76,7 @@ Base URL: `REACT_APP_API_URL` (e.g. `http://localhost:5555`). Authenticated rout
 | GET | `/trips/:id` | — | Get one trip with its photos and followers |
 | PATCH | `/trips/:id` | required, owner | Update `title`, `destination`, `start_date`, `end_date` |
 | DELETE | `/trips/:id` | required, owner | Delete a trip and its photos/followers |
-| GET | `/users` | — | List users (paginated) |
+| GET | `/users` | — | List users (`?limit=&offset=`, default limit 20, max 100) |
 | GET | `/users/:id` | — | Get one user |
 | GET | `/users/:id/trips` | — | List a user's trips |
 | POST | `/photos` | required, owner | Attach a photo to a trip the caller owns |
