@@ -1,0 +1,15 @@
+.blur-image {
+  filter: blur(16px);
+  transition: filter 400ms var(--ease-standard);
+}
+
+.blur-image.is-loaded {
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blur-image {
+    filter: none;
+    transition: none;
+  }
+}

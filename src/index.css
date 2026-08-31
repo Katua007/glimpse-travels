@@ -1,20 +1,34 @@
+@import './styles/tokens.css';
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #ffffff;
-  color: #333;
+  background-color: var(--color-ground);
+  color: var(--color-ink);
   line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #1a2a44;
+  font-family: var(--font-display);
+  color: var(--color-ink);
   font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 var(--space-xs);
+}
+
+p {
+  margin: 0 0 var(--space-sm);
+}
+
+a {
+  color: var(--color-accent);
 }
 
 .App {
@@ -28,17 +42,30 @@ main {
 }
 
 button {
-  background-color: #667eea;
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
 }
 
-button:hover {
-  background-color: #5a6fd8;
-  transform: translateY(-1px);
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
