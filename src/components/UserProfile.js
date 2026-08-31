@@ -19,9 +19,8 @@ function UserProfile() {
     }
 
     client
-      .get('/trips')
-      .then(trips => {
-        const myTrips = trips.filter(trip => trip.user_id === user.id);
+      .get(`/users/${user.id}/trips`)
+      .then(myTrips => {
         setUserTrips(myTrips);
         const totalPhotos = myTrips.reduce((sum, trip) => sum + (trip.photos?.length || 0), 0);
         setStats({
