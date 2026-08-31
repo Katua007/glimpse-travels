@@ -1,7 +1,7 @@
 // client/src/components/TripDetail.js
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import React, { useCallback, useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Photo from './Photo';
@@ -12,30 +12,34 @@ import './TripDetail.css';
 function TripDetail() {
   const [trip, setTrip] = useState(null);
   const [tripOwner, setTripOwner] = useState(null);
+  const [error, setError] = useState(null);
   const { id } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => {
+  const loadTrip = useCallback(() => {
     let cancelled = false;
+    setError(null);
 
-    async function loadTrip() {
+    (async () => {
       try {
         const data = await client.get(`/trips/${id}`);
         if (cancelled) return;
         setTrip(data);
         const owner = await client.get(`/users/${data.user_id}`).catch(() => null);
         if (!cancelled) setTripOwner(owner);
-      } catch (error) {
-        console.error('Error fetching trip:', error);
+      } catch (err) {
+        console.error('Error fetching trip:', err);
+        if (!cancelled) setError('Could not load this trip.');
       }
-    }
+    })();
 
-    loadTrip();
     return () => {
       cancelled = true;
     };
   }, [id]);
+
+  useEffect(() => loadTrip(), [loadTrip]);
 
   const handleAddPhoto = (newPhoto) => {
     setTrip(prevTrip => ({
@@ -50,17 +54,28 @@ function TripDetail() {
     }
     try {
       await client.delete(`/trips/${id}`);
-      history.push('/trips');
-    } catch (error) {
-      console.error('Error deleting trip:', error);
+      navigate('/trips');
+    } catch (err) {
+      console.error('Error deleting trip:', err);
       alert('Failed to delete trip. You might not have permission.');
     }
   };
 
+  if (error) {
+    return (
+      <div className="trip-detail-page">
+        <div className="no-photos">
+          <p>{error}</p>
+          <button type="button" onClick={loadTrip}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   if (!trip) {
     return <div className="loading">🌍 Loading adventure...</div>;
   }
-  
+
   const isOwner = user && user.id === trip.user_id;
   const mainPhoto = trip.photos && trip.photos[0] ? trip.photos[0].url : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=400&fit=crop';
 

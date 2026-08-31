@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -8,39 +8,38 @@ function RecommendedProfiles() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [userTrips, setUserTrips] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('loading'); // loading | error | ready
+
+  const fetchData = useCallback(async () => {
+    setStatus('loading');
+    try {
+      const usersData = await client.get('/users');
+      const otherUsers = Array.isArray(usersData)
+        ? usersData.filter(user => user.id !== currentUser?.id)
+        : [];
+      setUsers(otherUsers);
+
+      const tripsData = await client.get('/trips');
+      const tripsByUser = {};
+      if (Array.isArray(tripsData)) {
+        tripsData.forEach(trip => {
+          if (!tripsByUser[trip.user_id]) {
+            tripsByUser[trip.user_id] = [];
+          }
+          tripsByUser[trip.user_id].push(trip);
+        });
+      }
+      setUserTrips(tripsByUser);
+      setStatus('ready');
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setStatus('error');
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usersData = await client.get('/users');
-        if (Array.isArray(usersData)) {
-          const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
-          setUsers(otherUsers);
-        }
-
-        const tripsData = await client.get('/trips');
-        if (Array.isArray(tripsData)) {
-          const tripsByUser = {};
-          tripsData.forEach(trip => {
-            if (!tripsByUser[trip.user_id]) {
-              tripsByUser[trip.user_id] = [];
-            }
-            tripsByUser[trip.user_id].push(trip);
-          });
-          setUserTrips(tripsByUser);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setUsers([]);
-        setUserTrips({});
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [currentUser]);
+  }, [fetchData]);
 
   const getVisitedCountries = (userId) => {
     const trips = userTrips[userId] || [];
@@ -54,11 +53,23 @@ function RecommendedProfiles() {
     return [...new Set(futureTrips.map(trip => trip.destination))];
   };
 
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="recommended-profiles">
         <h2>🌟 Recommended Travel Profiles</h2>
         <div className="loading-profiles">Loading amazing travelers...</div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="recommended-profiles">
+        <h2>🌟 Recommended Travel Profiles</h2>
+        <div className="no-profiles">
+          <p>Couldn't load travel profiles. Check your connection and try again.</p>
+          <button type="button" onClick={fetchData}>Retry</button>
+        </div>
       </div>
     );
   }
@@ -70,7 +81,8 @@ function RecommendedProfiles() {
         {users.length > 0 ? users.slice(0, 6).map(user => {
           const visitedCountries = getVisitedCountries(user.id);
           const wishlistCountries = getWishlistCountries(user.id);
-          
+          const trips = userTrips[user.id] || [];
+
           return (
             <div key={user.id} className="profile-card">
               <div className="profile-header">
@@ -131,12 +143,13 @@ function RecommendedProfiles() {
               </div>
 
               <div className="profile-actions">
-                <Link to={`/profile/${user.id}`} className="view-profile-btn">
-                  View Profile
-                </Link>
-                <button className="follow-btn">
-                  Follow
-                </button>
+                {trips.length > 0 ? (
+                  <Link to={`/trips/${trips[0].id}`} className="view-profile-btn">
+                    View Their Trips
+                  </Link>
+                ) : (
+                  <span className="no-countries">No trips to show yet</span>
+                )}
               </div>
             </div>
           );

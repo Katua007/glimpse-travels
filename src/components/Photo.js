@@ -2,6 +2,10 @@ import React from 'react';
 import './Photo.css';
 
 function Photo({ photo }) {
+  if (!photo) {
+    return null;
+  }
+
   const handleImageError = (e) => {
     e.target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=400&fit=crop';
   };

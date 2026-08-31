@@ -1,40 +1,41 @@
 // client/src/components/UserProfile.js
 
-import React, { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import './UserProfile.css';
 
 function UserProfile() {
-  const history = useHistory();
   const { user } = useAuth();
   const [userTrips, setUserTrips] = useState([]);
-  const [stats, setStats] = useState({ totalTrips: 0, totalPhotos: 0, followers: 0 });
+  const [status, setStatus] = useState('loading'); // loading | error | ready
 
-  useEffect(() => {
-    if (!user) {
-      history.push('/login');
-      return;
-    }
-
+  const loadTrips = useCallback(() => {
+    if (!user) return;
+    setStatus('loading');
     client
       .get(`/users/${user.id}/trips`)
       .then(myTrips => {
         setUserTrips(myTrips);
-        const totalPhotos = myTrips.reduce((sum, trip) => sum + (trip.photos?.length || 0), 0);
-        setStats({
-          totalTrips: myTrips.length,
-          totalPhotos,
-          followers: myTrips.reduce((sum, trip) => sum + (trip.followers?.length || 0), 0)
-        });
+        setStatus('ready');
       })
-      .catch(error => console.error('Error fetching trips:', error));
-  }, [user, history]);
+      .catch(error => {
+        console.error('Error fetching trips:', error);
+        setStatus('error');
+      });
+  }, [user]);
+
+  useEffect(() => {
+    loadTrips();
+  }, [loadTrips]);
 
   if (!user) {
-    return <div className="loading">Redirecting to login...</div>;
+    return null;
   }
+
+  const totalPhotos = userTrips.reduce((sum, trip) => sum + (trip.photos?.length || 0), 0);
+  const totalFollowers = userTrips.reduce((sum, trip) => sum + (trip.followers?.length || 0), 0);
 
   return (
     <div className="profile-page">
@@ -53,15 +54,15 @@ function UserProfile() {
 
       <div className="profile-stats">
         <div className="stat-card">
-          <div className="stat-number">{stats.totalTrips}</div>
+          <div className="stat-number">{userTrips.length}</div>
           <div className="stat-label">Trips</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number">{stats.totalPhotos}</div>
+          <div className="stat-number">{totalPhotos}</div>
           <div className="stat-label">Photos</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number">{stats.followers}</div>
+          <div className="stat-number">{totalFollowers}</div>
           <div className="stat-label">Followers</div>
         </div>
       </div>
@@ -77,38 +78,52 @@ function UserProfile() {
 
       <div className="my-trips-section">
         <h2>🎨 My Adventures</h2>
-        <div className="my-trips-grid">
-          {userTrips.length > 0 ? (
-            userTrips.map(trip => (
-              <div key={trip.id} className="trip-card">
-                <div className="trip-image">
-                  <img 
-                    src={trip.photos && trip.photos[0] ? trip.photos[0].url : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'} 
-                    alt={trip.title}
-                  />
-                </div>
-                <div className="trip-content">
-                  <h3>{trip.title}</h3>
-                  <p className="destination">📍 {trip.destination}</p>
-                  <p className="date">📅 {new Date(trip.start_date).toLocaleDateString()}</p>
-                  <div className="trip-actions">
-                    <Link to={`/trips/${trip.id}`} className="view-btn">View Details</Link>
-                    <Link to={`/trips/${trip.id}/edit`} className="edit-btn">Edit</Link>
+
+        {status === 'loading' && <p className="loading">Loading your trips…</p>}
+
+        {status === 'error' && (
+          <div className="no-trips">
+            <p>Couldn't load your trips. Check your connection and try again.</p>
+            <button type="button" className="create-first-trip" onClick={loadTrips}>
+              Retry
+            </button>
+          </div>
+        )}
+
+        {status === 'ready' && (
+          <div className="my-trips-grid">
+            {userTrips.length > 0 ? (
+              userTrips.map(trip => (
+                <div key={trip.id} className="trip-card">
+                  <div className="trip-image">
+                    <img
+                      src={trip.photos && trip.photos[0] ? trip.photos[0].url : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'}
+                      alt={trip.title}
+                    />
+                  </div>
+                  <div className="trip-content">
+                    <h3>{trip.title}</h3>
+                    <p className="destination">📍 {trip.destination}</p>
+                    <p className="date">📅 {new Date(trip.start_date).toLocaleDateString()}</p>
+                    <div className="trip-actions">
+                      <Link to={`/trips/${trip.id}`} className="view-btn">View Details</Link>
+                      <Link to={`/trips/${trip.id}/edit`} className="edit-btn">Edit</Link>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="no-trips">
+                <div className="no-trips-icon">🌍</div>
+                <h3>No adventures yet!</h3>
+                <p>Start documenting your travels by creating your first trip.</p>
+                <Link to="/trips/new" className="create-first-trip">
+                  Create Your First Trip
+                </Link>
               </div>
-            ))
-          ) : (
-            <div className="no-trips">
-              <div className="no-trips-icon">🌍</div>
-              <h3>No adventures yet!</h3>
-              <p>Start documenting your travels by creating your first trip.</p>
-              <Link to="/trips/new" className="create-first-trip">
-                Create Your First Trip
-              </Link>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

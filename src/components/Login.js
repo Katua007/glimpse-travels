@@ -3,7 +3,7 @@
 import React from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
@@ -13,7 +13,7 @@ const LoginSchema = Yup.object().shape({
 });
 
 function Login() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { login } = useAuth();
 
   return (
@@ -30,7 +30,7 @@ function Login() {
           onSubmit={(values, { setSubmitting, setFieldError }) => {
             login(values.username, values.password)
               .then(() => {
-                history.push('/profile');
+                navigate('/profile');
               })
               .catch(() => {
                 setFieldError('password', 'Invalid username or password');

@@ -1,76 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import client from '../api/client';
-import { useAuth } from '../context/AuthContext';
 import './TripForm.css';
 
-const TripSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(3, 'Title must be at least 3 characters')
-    .max(100, 'Title must be less than 100 characters')
-    .required('Trip title is required'),
-  destination: Yup.string()
-    .min(2, 'Destination must be at least 2 characters')
-    .max(50, 'Destination must be less than 50 characters')
-    .required('Destination is required'),
-  start_date: Yup.date()
-    .min(new Date(), 'Start date cannot be in the past')
-    .required('Start date is required'),
-  end_date: Yup.date()
-    .required('End date is required')
-    .min(Yup.ref('start_date'), 'End date must be after start date'),
-});
+function getTripSchema(isEditing) {
+  return Yup.object().shape({
+    title: Yup.string()
+      .min(3, 'Title must be at least 3 characters')
+      .max(100, 'Title must be less than 100 characters')
+      .required('Trip title is required'),
+    destination: Yup.string()
+      .min(2, 'Destination must be at least 2 characters')
+      .max(50, 'Destination must be less than 50 characters')
+      .required('Destination is required'),
+    start_date: isEditing
+      ? Yup.date().required('Start date is required')
+      : Yup.date().min(new Date(), 'Start date cannot be in the past').required('Start date is required'),
+    end_date: Yup.date()
+      .required('End date is required')
+      .min(Yup.ref('start_date'), 'End date must be after start date'),
+  });
+}
+
+const popularDestinations = [
+  'Paris, France', 'Tokyo, Japan', 'New York, USA', 'London, UK',
+  'Rome, Italy', 'Barcelona, Spain', 'Bali, Indonesia', 'Dubai, UAE',
+  'Sydney, Australia', 'Bangkok, Thailand', 'Istanbul, Turkey', 'Cairo, Egypt'
+];
 
 function TripForm() {
   const { id } = useParams();
-  const history = useHistory();
-  const { user } = useAuth();
-  const [initialValues, setInitialValues] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const isEditing = Boolean(id);
+  const [initialValues, setInitialValues] = useState(isEditing ? null : {
+    title: '', destination: '', start_date: '', end_date: ''
+  });
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    if (!user) {
-      history.push('/login');
-      return;
-    }
+    if (!isEditing) return;
 
-    if (id) {
-      setIsEditing(true);
-      client
-        .get(`/trips/${id}`)
-        .then(data => {
-          setInitialValues({
-            title: data.title,
-            destination: data.destination,
-            start_date: data.start_date.split('T')[0],
-            end_date: data.end_date.split('T')[0]
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching trip:', error);
-          history.push('/trips');
+    let cancelled = false;
+    client
+      .get(`/trips/${id}`)
+      .then(data => {
+        if (cancelled) return;
+        setInitialValues({
+          title: data.title,
+          destination: data.destination,
+          start_date: data.start_date.split('T')[0],
+          end_date: data.end_date.split('T')[0]
         });
-    } else {
-      setInitialValues({
-        title: '',
-        destination: '',
-        start_date: '',
-        end_date: ''
+      })
+      .catch(error => {
+        if (cancelled) return;
+        console.error('Error fetching trip:', error);
+        setLoadError('Could not load this trip.');
       });
-    }
-  }, [user, id, history]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isEditing]);
+
+  if (loadError) {
+    return (
+      <div className="trip-form-page">
+        <p className="error-message">{loadError}</p>
+      </div>
+    );
+  }
 
   if (!initialValues) {
     return <div className="loading">🌍 Loading...</div>;
   }
-
-  const popularDestinations = [
-    'Paris, France', 'Tokyo, Japan', 'New York, USA', 'London, UK',
-    'Rome, Italy', 'Barcelona, Spain', 'Bali, Indonesia', 'Dubai, UAE',
-    'Sydney, Australia', 'Bangkok, Thailand', 'Istanbul, Turkey', 'Cairo, Egypt'
-  ];
 
   return (
     <div className="trip-form-page">
@@ -80,7 +85,7 @@ function TripForm() {
             {isEditing ? '✏️ Edit Your Adventure' : '✨ Plan Your Next Adventure'}
           </h2>
           <p>
-            {isEditing 
+            {isEditing
               ? 'Update your trip details and make it even better'
               : 'Create a new trip and start documenting your journey'
             }
@@ -89,7 +94,7 @@ function TripForm() {
 
         <Formik
           initialValues={initialValues}
-          validationSchema={TripSchema}
+          validationSchema={getTripSchema(isEditing)}
           enableReinitialize
           onSubmit={(values, { setSubmitting, setFieldError }) => {
             const request = id
@@ -99,7 +104,7 @@ function TripForm() {
             request
               .then(data => {
                 setSubmitting(false);
-                history.push(`/trips/${data.id}`);
+                navigate(`/trips/${data.id}`);
               })
               .catch(() => {
                 setSubmitting(false);
@@ -107,14 +112,14 @@ function TripForm() {
               });
           }}
         >
-          {({ isSubmitting, setFieldValue, values }) => (
+          {({ isSubmitting }) => (
             <Form className="trip-form">
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="title">🎨 Trip Title</label>
-                  <Field 
-                    name="title" 
-                    type="text" 
+                  <Field
+                    name="title"
+                    type="text"
                     placeholder="e.g., Amazing European Adventure"
                   />
                   <ErrorMessage name="title" component="div" className="error-message" />
@@ -151,7 +156,7 @@ function TripForm() {
                   <Field name="start_date" type="date" />
                   <ErrorMessage name="start_date" component="div" className="error-message" />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="end_date">🏁 End Date</label>
                   <Field name="end_date" type="date" />
@@ -160,20 +165,20 @@ function TripForm() {
               </div>
 
               <div className="form-actions">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="cancel-btn"
-                  onClick={() => history.goBack()}
+                  onClick={() => navigate(-1)}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isSubmitting}
                   className="submit-btn"
                 >
-                  {isSubmitting 
-                    ? (isEditing ? 'Updating...' : 'Creating...') 
+                  {isSubmitting
+                    ? (isEditing ? 'Updating...' : 'Creating...')
                     : (isEditing ? '💾 Update Trip' : '✨ Create Trip')
                   }
                 </button>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Signup.css';
 
@@ -21,7 +21,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 function Signup() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { signup } = useAuth();
 
   return (
@@ -38,7 +38,7 @@ function Signup() {
           onSubmit={(values, { setSubmitting, setFieldError }) => {
             signup(values.username, values.email, values.password)
               .then(() => {
-                history.push('/profile');
+                navigate('/profile');
               })
               .catch(() => {
                 setFieldError('username', 'Username or email already exists');
