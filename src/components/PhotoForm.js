@@ -1,7 +1,7 @@
 // client/src/components/PhotoForm.js
 
 import React, { useState } from 'react';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
 
 function PhotoForm({ tripId, onNewPhoto }) {
   const [url, setUrl] = useState('');
@@ -9,21 +9,8 @@ function PhotoForm({ tripId, onNewPhoto }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_BASE_URL}/photos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url,
-        caption,
-        trip_id: tripId
-      })
-    })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Failed to add photo');
-        }
-        return res.json();
-      })
+    client
+      .post('/photos', { url, caption, trip_id: tripId })
       .then(newPhoto => {
         onNewPhoto(newPhoto); // Callback to update state in parent component
         setUrl('');

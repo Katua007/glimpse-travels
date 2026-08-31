@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import './RecommendedProfiles.css';
 
-function RecommendedProfiles({ currentUser }) {
+function RecommendedProfiles() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [userTrips, setUserTrips] = useState({});
   const [loading, setLoading] = useState(true);
@@ -11,30 +13,22 @@ function RecommendedProfiles({ currentUser }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all users
-        const usersResponse = await fetch(`${API_BASE_URL}/users`);
-        if (usersResponse.ok) {
-          const usersData = await usersResponse.json();
-          if (Array.isArray(usersData)) {
-            const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
-            setUsers(otherUsers);
-          }
+        const usersData = await client.get('/users');
+        if (Array.isArray(usersData)) {
+          const otherUsers = usersData.filter(user => user.id !== currentUser?.id);
+          setUsers(otherUsers);
         }
 
-        // Fetch all trips to group by user
-        const tripsResponse = await fetch(`${API_BASE_URL}/trips`);
-        if (tripsResponse.ok) {
-          const tripsData = await tripsResponse.json();
-          if (Array.isArray(tripsData)) {
-            const tripsByUser = {};
-            tripsData.forEach(trip => {
-              if (!tripsByUser[trip.user_id]) {
-                tripsByUser[trip.user_id] = [];
-              }
-              tripsByUser[trip.user_id].push(trip);
-            });
-            setUserTrips(tripsByUser);
-          }
+        const tripsData = await client.get('/trips');
+        if (Array.isArray(tripsData)) {
+          const tripsByUser = {};
+          tripsData.forEach(trip => {
+            if (!tripsByUser[trip.user_id]) {
+              tripsByUser[trip.user_id] = [];
+            }
+            tripsByUser[trip.user_id].push(trip);
+          });
+          setUserTrips(tripsByUser);
         }
       } catch (error) {
         console.error('Error fetching data:', error);

@@ -4,7 +4,7 @@ import React from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 const LoginSchema = Yup.object().shape({
@@ -12,8 +12,9 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().required('Password is required'),
 });
 
-function Login({ onLogin }) {
+function Login() {
   const history = useHistory();
+  const { login } = useAuth();
 
   return (
     <div className="login-page">
@@ -22,27 +23,16 @@ function Login({ onLogin }) {
           <h2>🔑 Welcome Back</h2>
           <p>Sign in to continue your travel journey</p>
         </div>
-        
+
         <Formik
           initialValues={{ username: '', password: '' }}
           validationSchema={LoginSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            fetch(`${API_BASE_URL}/login`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(values),
-            })
-              .then(res => {
-                if (res.ok) {
-                  return res.json();
-                }
-                throw new Error('Invalid credentials');
-              })
-              .then(user => {
-                onLogin(user);
+            login(values.username, values.password)
+              .then(() => {
                 history.push('/profile');
               })
-              .catch(error => {
+              .catch(() => {
                 setFieldError('password', 'Invalid username or password');
                 setSubmitting(false);
               });
@@ -55,20 +45,20 @@ function Login({ onLogin }) {
                 <Field name="username" type="text" placeholder="Enter your username" />
                 <ErrorMessage name="username" component="div" className="error-message" />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="password">🔒 Password</label>
                 <Field name="password" type="password" placeholder="Enter your password" />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </div>
-              
+
               <button type="submit" disabled={isSubmitting} className="login-btn">
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
               </button>
             </Form>
           )}
         </Formik>
-        
+
         <div className="login-footer">
           <p>Don't have an account? <Link to="/signup">Join us today!</Link></p>
         </div>

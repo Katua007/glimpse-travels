@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
 import TripCard from './TripCard';
 import './TripList.css';
 
@@ -8,20 +8,9 @@ function TripList() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/trips`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (Array.isArray(data)) {
-          setTrips(data);
-        } else {
-          setTrips([]);
-        }
-      })
+    client
+      .get('/trips')
+      .then(data => setTrips(Array.isArray(data) ? data : []))
       .catch(error => {
         console.error('Error fetching trips:', error);
         setTrips([]);

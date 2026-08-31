@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
@@ -28,10 +29,14 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['JWT_SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 app.json.compact = False
+
+# Flask-RESTful wraps Flask's exception handling and swallows any error that
+# isn't an HTTPException as a generic 500, so flask-jwt-extended's own error
+# handlers (NoAuthorizationError, ExpiredSignatureError, ...) never run
+# unless we tell Flask to propagate those exceptions to its real handlers.
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 # Instantiate REST API
 api = Api(app)
@@ -40,6 +45,14 @@ api = Api(app)
 db.init_app(app)
 migrate.init_app(app, db, render_as_batch=True)
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
-# Instantiate CORS - Allow all origins for deployment
-CORS(app, origins='*', supports_credentials=False)
+# Explicit origin allowlist — credentialed cross-site cookies are fragile and
+# increasingly blocked by browsers, so auth uses bearer tokens instead and
+# CORS just needs to let the frontend origin(s) through.
+cors_origins = [
+    origin.strip()
+    for origin in os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    if origin.strip()
+]
+CORS(app, origins=cors_origins)

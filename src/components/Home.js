@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import RecommendedProfiles from './RecommendedProfiles';
 import './Home.css';
 
-function Home({ user }) {
+function Home() {
   return (
     <div className="home">
       <section className="hero">
@@ -38,7 +38,7 @@ function Home({ user }) {
         </Link>
       </section>
       
-      <RecommendedProfiles currentUser={user} />
+      <RecommendedProfiles />
     </div>
   );
 }

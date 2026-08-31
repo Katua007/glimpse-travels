@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import './UserProfile.css';
 
-function UserProfile({ user }) {
+function UserProfile() {
   const history = useHistory();
+  const { user } = useAuth();
   const [userTrips, setUserTrips] = useState([]);
   const [stats, setStats] = useState({ totalTrips: 0, totalPhotos: 0, followers: 0 });
 
@@ -15,15 +17,12 @@ function UserProfile({ user }) {
       history.push('/login');
       return;
     }
-    
-    // Fetch user's trips
-    fetch(`${API_BASE_URL}/trips`)
-      .then(res => res.json())
+
+    client
+      .get('/trips')
       .then(trips => {
         const myTrips = trips.filter(trip => trip.user_id === user.id);
         setUserTrips(myTrips);
-        
-        // Calculate stats
         const totalPhotos = myTrips.reduce((sum, trip) => sum + (trip.photos?.length || 0), 0);
         setStats({
           totalTrips: myTrips.length,

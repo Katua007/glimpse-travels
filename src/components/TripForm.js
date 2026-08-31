@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import './TripForm.css';
 
 const TripSchema = Yup.object().shape({
@@ -22,9 +23,10 @@ const TripSchema = Yup.object().shape({
     .min(Yup.ref('start_date'), 'End date must be after start date'),
 });
 
-function TripForm({ user }) {
+function TripForm() {
   const { id } = useParams();
   const history = useHistory();
+  const { user } = useAuth();
   const [initialValues, setInitialValues] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -33,11 +35,11 @@ function TripForm({ user }) {
       history.push('/login');
       return;
     }
-    
+
     if (id) {
       setIsEditing(true);
-      fetch(`${API_BASE_URL}/trips/${id}`)
-        .then(res => res.json())
+      client
+        .get(`/trips/${id}`)
         .then(data => {
           setInitialValues({
             title: data.title,
@@ -90,25 +92,16 @@ function TripForm({ user }) {
           validationSchema={TripSchema}
           enableReinitialize
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            const url = id ? `/trips/${id}` : '/trips';
-            const method = id ? 'PATCH' : 'POST';
+            const request = id
+              ? client.patch(`/trips/${id}`, values)
+              : client.post('/trips', values);
 
-            fetch(`${API_BASE_URL}${url}`, {
-              method: method,
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(values),
-            })
-              .then(res => {
-                if (!res.ok) {
-                  throw new Error('Failed to save trip');
-                }
-                return res.json();
-              })
+            request
               .then(data => {
                 setSubmitting(false);
                 history.push(`/trips/${data.id}`);
               })
-              .catch(error => {
+              .catch(() => {
                 setSubmitting(false);
                 setFieldError('title', 'Failed to save trip. Please try again.');
               });

@@ -1,7 +1,7 @@
 // client/src/components/TripFollowers.js
 
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
 
 function TripFollowers({ tripId, user }) {
   const [followers, setFollowers] = useState([]);
@@ -11,8 +11,8 @@ function TripFollowers({ tripId, user }) {
 
   useEffect(() => {
     // For now, we'll fetch all trip followers and filter by trip_id
-    fetch(`${API_BASE_URL}/trip-followers`)
-      .then(res => res.json())
+    client
+      .get('/trip-followers')
       .then(data => {
         const tripFollowers = data.filter(follower => follower.trip_id === parseInt(tripId));
         setFollowers(tripFollowers);
@@ -24,31 +24,28 @@ function TripFollowers({ tripId, user }) {
 
   const handleFollow = (e) => {
     e.preventDefault();
-    fetch(`${API_BASE_URL}/trip-followers`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    client
+      .post('/trip-followers', {
         user_id: userId,
         trip_id: tripId,
         reason_for_following: reason
       })
-    })
-    .then(res => res.json())
-    .then(newFollower => {
-      setFollowers([...followers, newFollower]);
-      setIsFollowing(true);
-      setReason('');
-    });
+      .then(newFollower => {
+        setFollowers([...followers, newFollower]);
+        setIsFollowing(true);
+        setReason('');
+      })
+      .catch(error => console.error('Error following trip:', error));
   };
 
   const handleUnfollow = () => {
-    // NOTE: You'll need a backend DELETE route for this. Example: /trip-followers/user_id/trip_id
-    fetch(`${API_BASE_URL}/trip-followers/${userId}/${tripId}`, {
-      method: 'DELETE'
-    }).then(() => {
-      setFollowers(followers.filter(f => f.user_id !== userId));
-      setIsFollowing(false);
-    });
+    client
+      .delete(`/trip-followers/${userId}/${tripId}`)
+      .then(() => {
+        setFollowers(followers.filter(f => f.user_id !== userId));
+        setIsFollowing(false);
+      })
+      .catch(error => console.error('Error unfollowing trip:', error));
   };
 
  return (

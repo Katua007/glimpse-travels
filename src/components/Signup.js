@@ -4,7 +4,7 @@ import React from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useHistory, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import './Signup.css';
 
 const SignupSchema = Yup.object().shape({
@@ -20,8 +20,9 @@ const SignupSchema = Yup.object().shape({
     .required('Password is required'),
 });
 
-function Signup({ onLogin }) {
+function Signup() {
   const history = useHistory();
+  const { signup } = useAuth();
 
   return (
     <div className="signup-page">
@@ -30,27 +31,16 @@ function Signup({ onLogin }) {
           <h2>🌍 Join Our Travel Community</h2>
           <p>Start documenting your adventures today</p>
         </div>
-        
+
         <Formik
           initialValues={{ username: '', email: '', password: '' }}
           validationSchema={SignupSchema}
           onSubmit={(values, { setSubmitting, setFieldError }) => {
-            fetch(`${API_BASE_URL}/signup`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(values),
-            })
-              .then(res => {
-                if (res.ok) {
-                  return res.json();
-                }
-                throw new Error('Username or email already taken');
-              })
-              .then(user => {
-                onLogin(user);
+            signup(values.username, values.email, values.password)
+              .then(() => {
                 history.push('/profile');
               })
-              .catch(error => {
+              .catch(() => {
                 setFieldError('username', 'Username or email already exists');
                 setSubmitting(false);
               });
@@ -63,26 +53,26 @@ function Signup({ onLogin }) {
                 <Field name="username" type="text" placeholder="Choose a unique username" />
                 <ErrorMessage name="username" component="div" className="error-message" />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="email">📧 Email</label>
                 <Field name="email" type="email" placeholder="Enter your email address" />
                 <ErrorMessage name="email" component="div" className="error-message" />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="password">🔒 Password</label>
                 <Field name="password" type="password" placeholder="Create a secure password" />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </div>
-              
+
               <button type="submit" disabled={isSubmitting} className="signup-btn">
                 {isSubmitting ? 'Creating Account...' : '✨ Join the Adventure'}
               </button>
             </Form>
           )}
         </Formik>
-        
+
         <div className="signup-footer">
           <p>Already have an account? <Link to="/login">Sign in here</Link></p>
         </div>

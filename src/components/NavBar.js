@@ -1,8 +1,11 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./NavBar.css";
 
-function NavBar({ user, onLogout }) {
+function NavBar() {
+  const { user, logout } = useAuth();
+
   return (
     <header>
       <nav className="navbar">
@@ -18,7 +21,7 @@ function NavBar({ user, onLogout }) {
             <div className="user-menu">
               <NavLink to="/trips/new" activeClassName="active">➕ Create Trip</NavLink>
               <NavLink to="/profile" activeClassName="active">👤 My Profile</NavLink>
-              <button onClick={onLogout} className="logout-btn">🚪 Logout</button>
+              <button onClick={logout} className="logout-btn">🚪 Logout</button>
             </div>
           ) : (
             <div className="auth-links">

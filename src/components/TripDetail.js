@@ -2,34 +2,39 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import Photo from './Photo';
 import TripFollowers from './TripFollowers';
 import PhotoForm from './PhotoForm';
 import './TripDetail.css';
 
-function TripDetail({ user }) {
+function TripDetail() {
   const [trip, setTrip] = useState(null);
   const [tripOwner, setTripOwner] = useState(null);
   const { id } = useParams();
   const history = useHistory();
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/trips/${id}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Trip not found');
-        }
-        return response.json();
-      })
-      .then(data => {
+    let cancelled = false;
+
+    async function loadTrip() {
+      try {
+        const data = await client.get(`/trips/${id}`);
+        if (cancelled) return;
         setTrip(data);
-        // Fetch trip owner details
-        return fetch(`${API_BASE_URL}/users/${data.user_id}`);
-      })
-      .then(res => res.ok ? res.json() : null)
-      .then(owner => setTripOwner(owner))
-      .catch(error => console.error('Error fetching trip:', error));
+        const owner = await client.get(`/users/${data.user_id}`).catch(() => null);
+        if (!cancelled) setTripOwner(owner);
+      } catch (error) {
+        console.error('Error fetching trip:', error);
+      }
+    }
+
+    loadTrip();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const handleAddPhoto = (newPhoto) => {
@@ -39,19 +44,16 @@ function TripDetail({ user }) {
     }));
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this trip?')) {
-      fetch(`${API_BASE_URL}/trips/${id}`, {
-        method: 'DELETE'
-      })
-        .then(res => {
-          if (res.ok) {
-            history.push('/trips');
-          } else {
-            alert('Failed to delete trip. You might not have permission.');
-          }
-        })
-        .catch(error => console.error('Error deleting trip:', error));
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this trip?')) {
+      return;
+    }
+    try {
+      await client.delete(`/trips/${id}`);
+      history.push('/trips');
+    } catch (error) {
+      console.error('Error deleting trip:', error);
+      alert('Failed to delete trip. You might not have permission.');
     }
   };
 
