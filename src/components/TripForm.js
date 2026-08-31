@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { PenLine, MapPin, Calendar } from 'lucide-react';
 import client from '../api/client';
+import { Button, ErrorState, useToast } from './ui';
 import './TripForm.css';
 
 function getTripSchema(isEditing) {
@@ -33,6 +35,7 @@ const popularDestinations = [
 function TripForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const isEditing = Boolean(id);
   const [initialValues, setInitialValues] = useState(isEditing ? null : {
     title: '', destination: '', start_date: '', end_date: ''
@@ -68,26 +71,24 @@ function TripForm() {
   if (loadError) {
     return (
       <div className="trip-form-page">
-        <p className="error-message">{loadError}</p>
+        <ErrorState message={loadError} />
       </div>
     );
   }
 
   if (!initialValues) {
-    return <div className="loading">🌍 Loading...</div>;
+    return <div className="loading">Loading…</div>;
   }
 
   return (
     <div className="trip-form-page">
       <div className="trip-form-container">
         <div className="form-header">
-          <h2>
-            {isEditing ? '✏️ Edit Your Adventure' : '✨ Plan Your Next Adventure'}
-          </h2>
+          <h2>{isEditing ? 'Edit trip' : 'Log a new trip'}</h2>
           <p>
             {isEditing
-              ? 'Update your trip details and make it even better'
-              : 'Create a new trip and start documenting your journey'
+              ? 'Update the details of this trip.'
+              : 'Where did you go, and when?'
             }
           </p>
         </div>
@@ -104,84 +105,75 @@ function TripForm() {
             request
               .then(data => {
                 setSubmitting(false);
+                toast.show(isEditing ? 'Trip updated.' : 'Trip created.');
                 navigate(`/trips/${data.id}`);
               })
-              .catch(() => {
+              .catch((err) => {
                 setSubmitting(false);
-                setFieldError('title', 'Failed to save trip. Please try again.');
+                setFieldError('title', err.message || 'Failed to save trip. Please try again.');
               });
           }}
         >
           {({ isSubmitting }) => (
             <Form className="trip-form">
               <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="title">🎨 Trip Title</label>
+                <div className="field">
+                  <label htmlFor="title" className="field-label"><PenLine size={14} aria-hidden="true" /> Trip title</label>
                   <Field
+                    id="title"
                     name="title"
                     type="text"
-                    placeholder="e.g., Amazing European Adventure"
+                    className="field-input"
+                    placeholder="e.g., Two weeks in the Alps"
                   />
-                  <ErrorMessage name="title" component="div" className="error-message" />
+                  <ErrorMessage name="title" component="div" className="field-error" />
                 </div>
               </div>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="destination">📍 Destination</label>
-                  <Field name="destination">
-                    {({ field }) => (
-                      <div className="destination-input">
-                        <input
-                          {...field}
-                          type="text"
-                          placeholder="Where are you going?"
-                          list="destinations"
-                        />
-                        <datalist id="destinations">
-                          {popularDestinations.map(dest => (
-                            <option key={dest} value={dest} />
-                          ))}
-                        </datalist>
-                      </div>
-                    )}
-                  </Field>
-                  <ErrorMessage name="destination" component="div" className="error-message" />
+                <div className="field">
+                  <label htmlFor="destination" className="field-label"><MapPin size={14} aria-hidden="true" /> Destination</label>
+                  <Field
+                    id="destination"
+                    name="destination"
+                    type="text"
+                    className="field-input"
+                    placeholder="Where are you going?"
+                    list="destinations"
+                  />
+                  <datalist id="destinations">
+                    {popularDestinations.map(dest => (
+                      <option key={dest} value={dest} />
+                    ))}
+                  </datalist>
+                  <ErrorMessage name="destination" component="div" className="field-error" />
                 </div>
               </div>
 
               <div className="form-row date-row">
-                <div className="form-group">
-                  <label htmlFor="start_date">📅 Start Date</label>
-                  <Field name="start_date" type="date" />
-                  <ErrorMessage name="start_date" component="div" className="error-message" />
+                <div className="field">
+                  <label htmlFor="start_date" className="field-label"><Calendar size={14} aria-hidden="true" /> Start date</label>
+                  <Field id="start_date" name="start_date" type="date" className="field-input" />
+                  <ErrorMessage name="start_date" component="div" className="field-error" />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="end_date">🏁 End Date</label>
-                  <Field name="end_date" type="date" />
-                  <ErrorMessage name="end_date" component="div" className="error-message" />
+                <div className="field">
+                  <label htmlFor="end_date" className="field-label"><Calendar size={14} aria-hidden="true" /> End date</label>
+                  <Field id="end_date" name="end_date" type="date" className="field-input" />
+                  <ErrorMessage name="end_date" component="div" className="field-error" />
                 </div>
               </div>
 
               <div className="form-actions">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => navigate(-1)}
-                >
+                <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="submit-btn"
-                >
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting
-                    ? (isEditing ? 'Updating...' : 'Creating...')
-                    : (isEditing ? '💾 Update Trip' : '✨ Create Trip')
+                    ? (isEditing ? 'Saving…' : 'Creating…')
+                    : (isEditing ? 'Save changes' : 'Save trip')
                   }
-                </button>
+                </Button>
               </div>
             </Form>
           )}

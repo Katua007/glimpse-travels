@@ -1,0 +1,16 @@
+@import './ui/Input.css';
+
+.photo-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 28rem;
+}
+
+.photo-form h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  font-size: var(--font-size-md);
+  margin: 0;
+}

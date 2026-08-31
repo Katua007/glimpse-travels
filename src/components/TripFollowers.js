@@ -1,13 +1,18 @@
 // client/src/components/TripFollowers.js
 
 import React, { useState, useEffect } from 'react';
+import { Users, UserMinus } from 'lucide-react';
 import client from '../api/client';
+import { Input, Button, Card, useToast } from './ui';
+import './TripFollowers.css';
 
 function TripFollowers({ tripId, user }) {
   const [followers, setFollowers] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [reason, setReason] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const userId = user?.id;
+  const toast = useToast();
 
   useEffect(() => {
     // For now, we'll fetch all trip followers and filter by trip_id
@@ -24,6 +29,7 @@ function TripFollowers({ tripId, user }) {
 
   const handleFollow = (e) => {
     e.preventDefault();
+    setSubmitting(true);
     client
       .post('/trip-followers', {
         user_id: userId,
@@ -35,7 +41,11 @@ function TripFollowers({ tripId, user }) {
         setIsFollowing(true);
         setReason('');
       })
-      .catch(error => console.error('Error following trip:', error));
+      .catch(error => {
+        console.error('Error following trip:', error);
+        toast.show('Could not follow this trip. Please try again.', { type: 'error' });
+      })
+      .finally(() => setSubmitting(false));
   };
 
   const handleUnfollow = () => {
@@ -45,36 +55,49 @@ function TripFollowers({ tripId, user }) {
         setFollowers(followers.filter(f => f.user_id !== userId));
         setIsFollowing(false);
       })
-      .catch(error => console.error('Error unfollowing trip:', error));
+      .catch(error => {
+        console.error('Error unfollowing trip:', error);
+        toast.show('Could not unfollow this trip. Please try again.', { type: 'error' });
+      });
   };
 
- return (
-    <div>
-      <h3>Trip Followers ({followers.length})</h3>
-      {user && ( // Conditionally render follow/unfollow buttons if user is logged in
+  return (
+    <Card className="trip-followers">
+      <h3><Users size={18} aria-hidden="true" /> Following this trip ({followers.length})</h3>
+
+      {user && (
         isFollowing ? (
-          <button onClick={handleUnfollow}>Unfollow</button>
+          <Button variant="secondary" icon={UserMinus} onClick={handleUnfollow} className="follow-toggle">
+            Unfollow
+          </Button>
         ) : (
-          <form onSubmit={handleFollow}>
-            <input
+          <form onSubmit={handleFollow} className="follow-form">
+            <Input
+              id="follow-reason"
               type="text"
-              placeholder="Reason for following"
+              placeholder="Why are you following this trip?"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
             />
-            <button type="submit">Follow</button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? 'Following…' : 'Follow'}
+            </Button>
           </form>
         )
       )}
-      <ul>
-        {followers.map(follower => (
-          <li key={follower.id}>
-            User {follower.user_id} - {follower.reason_for_following}
-          </li>
-        ))}
-      </ul>
-    </div>
+
+      {followers.length > 0 && (
+        <ul className="followers-list">
+          {followers.map(follower => (
+            <li key={follower.id}>
+              <span className="follower-id">User #{follower.user_id}</span>
+              {follower.reason_for_following && ` — ${follower.reason_for_following}`}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
 

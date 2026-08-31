@@ -2,8 +2,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Mail, PlusCircle, Map, Compass, Pencil } from 'lucide-react';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { Button, Skeleton, ErrorState, EmptyState } from './ui';
+import TripCard from './TripCard';
 import './UserProfile.css';
 
 function UserProfile() {
@@ -40,15 +43,13 @@ function UserProfile() {
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <div className="profile-avatar">
-          <div className="avatar-circle">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
+        <div className="avatar-circle">
+          {user.username.charAt(0).toUpperCase()}
         </div>
         <div className="profile-info">
-          <h1>🌍 {user.username}</h1>
-          <p className="profile-email">📧 {user.email}</p>
-          <p className="profile-bio">Adventure seeker & travel enthusiast</p>
+          <h1>{user.username}</h1>
+          <p className="profile-email"><Mail size={14} aria-hidden="true" /> {user.email}</p>
+          <p className="profile-bio">{user.bio || 'Adventure seeker & travel enthusiast'}</p>
         </div>
       </div>
 
@@ -68,61 +69,52 @@ function UserProfile() {
       </div>
 
       <div className="profile-actions">
-        <Link to="/trips/new" className="action-btn primary">
-          ➕ Create New Trip
-        </Link>
-        <Link to="/trips" className="action-btn secondary">
-          🗺️ Explore Trips
-        </Link>
+        <Button to="/trips/new" icon={PlusCircle}>New trip</Button>
+        <Button to="/trips" variant="secondary" icon={Map}>Explore trips</Button>
       </div>
 
       <div className="my-trips-section">
-        <h2>🎨 My Adventures</h2>
+        <h2>My trips</h2>
 
-        {status === 'loading' && <p className="loading">Loading your trips…</p>}
-
-        {status === 'error' && (
-          <div className="no-trips">
-            <p>Couldn't load your trips. Check your connection and try again.</p>
-            <button type="button" className="create-first-trip" onClick={loadTrips}>
-              Retry
-            </button>
+        {status === 'loading' && (
+          <div className="my-trips-grid">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="trip-card-skeleton">
+                <Skeleton height="12rem" />
+                <div className="trip-card-skeleton-body">
+                  <Skeleton width="70%" height="1.25rem" />
+                  <Skeleton width="45%" height="1rem" />
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
+        {status === 'error' && (
+          <ErrorState message="Couldn't load your trips. Check your connection and try again." onRetry={loadTrips} />
+        )}
+
         {status === 'ready' && (
-          <div className="my-trips-grid">
-            {userTrips.length > 0 ? (
-              userTrips.map(trip => (
-                <div key={trip.id} className="trip-card">
-                  <div className="trip-image">
-                    <img
-                      src={trip.photos && trip.photos[0] ? trip.photos[0].url : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'}
-                      alt={trip.title}
-                    />
-                  </div>
-                  <div className="trip-content">
-                    <h3>{trip.title}</h3>
-                    <p className="destination">📍 {trip.destination}</p>
-                    <p className="date">📅 {new Date(trip.start_date).toLocaleDateString()}</p>
-                    <div className="trip-actions">
-                      <Link to={`/trips/${trip.id}`} className="view-btn">View Details</Link>
-                      <Link to={`/trips/${trip.id}/edit`} className="edit-btn">Edit</Link>
-                    </div>
-                  </div>
+          userTrips.length > 0 ? (
+            <div className="my-trips-grid">
+              {userTrips.map(trip => (
+                <div key={trip.id} className="my-trip-card">
+                  <TripCard trip={trip} />
+                  <Link to={`/trips/${trip.id}/edit`} className="my-trip-edit-link">
+                    <Pencil size={14} aria-hidden="true" /> Edit
+                  </Link>
                 </div>
-              ))
-            ) : (
-              <div className="no-trips">
-                <div className="no-trips-icon">🌍</div>
-                <h3>No adventures yet!</h3>
-                <p>Start documenting your travels by creating your first trip.</p>
-                <Link to="/trips/new" className="create-first-trip">
-                  Create Your First Trip
-                </Link>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={Compass}
+              title="No trips logged yet"
+              message="Start documenting your travels by creating your first trip."
+              actionLabel="Create your first trip"
+              actionTo="/trips/new"
+            />
+          )
         )}
       </div>
     </div>

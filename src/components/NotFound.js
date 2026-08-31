@@ -1,12 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { MapPinOff } from 'lucide-react';
+import { EmptyState } from './ui';
+import './NotFound.css';
 
 function NotFound() {
   return (
     <div className="not-found-page">
-      <h1>Page not found</h1>
-      <p>There's nothing here. The trip you're looking for may have been moved or deleted.</p>
-      <Link to="/trips">Explore trips</Link>
+      <EmptyState
+        icon={MapPinOff}
+        title="Off the map"
+        message="There's nothing at this address. The trip you're looking for may have been moved or deleted."
+        actionLabel="Explore trips"
+        actionTo="/trips"
+      />
     </div>
   );
 }

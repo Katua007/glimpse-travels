@@ -1,7 +1,8 @@
 // client/src/App.js
 
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import NavBar from './components/NavBar';
 import Home from './components/Home';
 import TripList from './components/TripList';
@@ -14,42 +15,46 @@ import NotFound from './components/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  const location = useLocation();
+
   return (
     <div className="App">
       <NavBar />
       <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/trips" element={<TripList />} />
-          <Route
-            path="/trips/new"
-            element={
-              <ProtectedRoute>
-                <TripForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/trips/:id/edit"
-            element={
-              <ProtectedRoute>
-                <TripForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/trips/:id" element={<TripDetail />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AnimatePresence>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Home />} />
+            <Route path="/trips" element={<TripList />} />
+            <Route
+              path="/trips/new"
+              element={
+                <ProtectedRoute>
+                  <TripForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <TripForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/trips/:id" element={<TripDetail />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnimatePresence>
       </main>
     </div>
   );

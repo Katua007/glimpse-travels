@@ -1,7 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Compass } from 'lucide-react';
 import client from '../api/client';
 import TripCard from './TripCard';
+import { Skeleton, ErrorState, EmptyState } from './ui';
 import './TripList.css';
 
 const CONTINENTS = {
@@ -49,13 +50,13 @@ function TripList() {
   return (
     <div className="trip-list-page">
       <div className="trip-list-header">
-        <h1>🌍 Explore Amazing Destinations</h1>
+        <h1>Explore the log</h1>
         <div className="filter-buttons">
           <button
             className={filter === 'all' ? 'active' : ''}
             onClick={() => setFilter('all')}
           >
-            All Destinations
+            All destinations
           </button>
           {Object.keys(CONTINENTS).map(continent => (
             <button
@@ -69,28 +70,40 @@ function TripList() {
         </div>
       </div>
 
-      {status === 'loading' && <p className="loading">Loading trips…</p>}
-
-      {status === 'error' && (
-        <div className="no-trips">
-          <p>Couldn't load trips. Check your connection and try again.</p>
-          <button type="button" onClick={loadTrips}>Retry</button>
+      {status === 'loading' && (
+        <div className="trip-list-container">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="trip-card-skeleton">
+              <Skeleton height="12rem" radius="var(--radius-lg) var(--radius-lg) 0 0" />
+              <div className="trip-card-skeleton-body">
+                <Skeleton width="70%" height="1.25rem" />
+                <Skeleton width="45%" height="1rem" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
+      {status === 'error' && (
+        <ErrorState message="Couldn't load trips. Check your connection and try again." onRetry={loadTrips} />
+      )}
+
       {status === 'ready' && (
-        <div className="trip-list-container">
-          {filteredTrips.length > 0 ? (
-            filteredTrips.map(trip => (
+        filteredTrips.length > 0 ? (
+          <div className="trip-list-container">
+            {filteredTrips.map(trip => (
               <TripCard key={trip.id} trip={trip} continent={getContinent(trip.destination)} />
-            ))
-          ) : (
-            <div className="no-trips">
-              <p>No trips found for this category yet.</p>
-              <Link to="/trips/new">Create the first one</Link>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Compass}
+            title="No trips in this category yet"
+            message="Be the first to log one here."
+            actionLabel="Create a trip"
+            actionTo="/trips/new"
+          />
+        )
       )}
     </div>
   );
